@@ -1,6 +1,6 @@
 import * as _ from "./lodash.min.js"
 
-class List {
+class List extends Array{
     /**
      * Creates a nested array with the specified dimensions.
      *
@@ -422,6 +422,16 @@ class List {
      */
     static abs(list){
         return list.map((x) => Math.abs(x))
+    }
+
+    static sortOnSubList(list, indexs=[0]){
+        list.sort((a, b) => {
+            for(index of indexs.slice(0, -1))
+                if(a[index] !== b[index])
+                    return a[index] - b[index] 
+
+            return a[indexs[indexs.length-1]] - b[indexs[indexs.length-1]] 
+        })
     }
 
 }
