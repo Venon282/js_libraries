@@ -84,6 +84,13 @@ class Database {
     getAllRows(table) {
       return this.select(table);
     }
+
+    save() {
+      if (!this.db) {
+        throw new Error("Database not initialized.");
+      }
+      return this.db.export(); // Exports the database as an ArrayBuffer
+    }
   }
 
 
