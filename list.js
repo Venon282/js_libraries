@@ -426,7 +426,7 @@ class List extends Array{
 
     static sortOnSubList(list, indexs=[0]){
         list.sort((a, b) => {
-            for(index of indexs.slice(0, -1))
+            for(const index of indexs.slice(0, -1))
                 if(a[index] !== b[index])
                     return a[index] - b[index] 
 
