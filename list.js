@@ -1,4 +1,4 @@
-import cloneDeep from 'lodash/cloneDeep';
+import * as _ from "/classes/lodash.min.js"
 
 class List {
     /**
@@ -187,7 +187,7 @@ class List {
      * @returns {Object} A new object that is a deep copy of the provided object.
      */
     static copy(object){
-        return cloneDeep(object)
+        return _.cloneDeep(object)
     }
     /**
      * Swaps the elements at two specified indices in a given array.

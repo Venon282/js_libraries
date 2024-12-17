@@ -1,5 +1,5 @@
-import List from "./list"
-import cloneDeep from 'lodash/cloneDeep';
+import List from "/classes/list.js"
+import * as _ from "/classes/lodash.min.js"
 
 class Dict{
     /**
@@ -21,6 +21,10 @@ class Dict{
             acc[key] = value;
             return acc
         }, {})
+    }
+
+    static isDict(value) {
+        return typeof value === 'object' && value !== null && !Array.isArray(value);
     }
 
     /**
@@ -95,7 +99,7 @@ class Dict{
      * @returns {Object} A deep copy of the provided object.
      */
     static copy(object){
-        return cloneDeep(object)
+        return _.cloneDeep(object)
     }
 
     /**
@@ -150,7 +154,26 @@ class Dict{
         return object
     }
 
-
+    // static getCol(dict, keys){
+    //     const res = new Array()
+    //     if(!Array.isArray(keys))
+    //         keys = [keys]
+    //     for(const [_, value] in Object.entries(dict)){
+            
+    //         const sub_res = new Array()
+    //         for(const key in keys){
+    //             // if array index or dic col
+    //             console.log(key, value)
+    //             //console.log(typeof key === 'string', Dict.isDict(value), (key in value), key, value)
+    //             if((Number.isInteger(key) && Array.isArray(value) && key>=0 && key<value.length) || 
+    //                 (typeof key === 'string' && Dict.isDict(value) && key in value)
+    //                 )
+    //                     sub_res.push(value[key])
+    //         }
+    //         res.push(sub_res)
+    //     }
+    //     return res
+    // }
 }
 
 export default Dict
