@@ -1,68 +1,90 @@
-import { database } from '../firebase';
-import { ref, set, child, get, onValue, update, remove, increment } from "firebase/database"
-
-//increment permite to increment server side thread safe
-class Database{
-    static getRefGlobal(){
-        return 'global/'
+class Database {
+    constructor(databaseUrl) {
+      this.databaseUrl = databaseUrl;
+      this.db = null;
     }
 
-    static getRefUsers(){
-        return 'users/'
+    // Initialize the database by fetching it from the URL and loading it into sql.js
+    async initialize() {
+      const response = await fetch(this.databaseUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/${file}`
+      });
+
+      this.db = new SQL.Database(new Uint8Array(arrayBuffer));
     }
 
-    static async set(my_ref,datas){
-        try{
-            return await set(ref(database,my_ref),datas)
-        }catch(error){
-            throw error
-        }
+    // Execute a query and return the result
+    exec(query, params = []) {
+      if (!this.db) {
+        throw new Error("Database not initialized.");
+      }
+
+      const statement = this.db.prepare(query);
+
+      // Bind parameters if provided
+      if (params.length > 0) {
+        statement.bind(params);
+      }
+
+      let result = statement.step();
+      const rows = [];
+
+      // Collect the result
+      while (result) {
+        rows.push(statement.getAsObject());
+        result = statement.step();
+      }
+
+      statement.free();
+      return rows;
     }
 
-    static async get(my_ref){
-        //const dbRef = ref(database)
-        return await get(child(ref(database), my_ref))
-        // console.log(snapshot)
-        // return snapshot.exists() ? snapshot.val() : null
+    // Insert a record into a table
+    insert(table, columns, values) {
+      const columnNames = columns.join(", ");
+      const placeholders = columns.map(() => "?").join(", ");
+      const query = `INSERT INTO ${table} (${columnNames}) VALUES (${placeholders})`;
+
+      this.exec(query, values);
+
+      const result = this.exec("SELECT last_insert_rowid() AS id");
+      return result[0].id
     }
 
-    static async on(my_ref){
-        let data = null
-        await onValue(ref(database, my_ref),(snapshot) => {
-                // if (snapshot.exists()) {
-                //     data =  snapshot.val();
-                // }
-                return snapshot
-            })
-        return data
+    // Update a record in a table
+    update(table, columns, values, condition) {
+      const setClause = columns.map(col => `${col} = ?`).join(", ");
+      const query = `UPDATE ${table} SET ${setClause} WHERE ${condition}`;
+
+      this.exec(query, values);
     }
 
-    // Go take the value in the cach
-    static async once(my_ref){
-        let data = null
-        await onValue(ref(database, my_ref),(snapshot) => {
-                // if (snapshot.exists()) {
-                //     data =  snapshot.val();
-                // }
-                return snapshot
-            }, {
-                onlyOnce: true
-            })
-        return data
+    // Delete a record from a table
+    delete(table, condition) {
+      const query = `DELETE FROM ${table} WHERE ${condition}`;
+      this.exec(query);
     }
 
-    // updates is a dictionnary with the ref as key and the value as value
-    static async update(updates){
-        try{
-            return await update(ref(database), updates)
-        }catch(error){
-            throw error
-        }
+    // Select records from a table
+    select(table, columns = "*", condition = "1=1", limit = 10) {
+      const query = `SELECT ${columns} FROM ${table} WHERE ${condition} LIMIT ${limit}`;
+      return this.exec(query);
     }
 
-    static async remove(my_ref){
-        return await remove(ref(database,my_ref))
+    // Check if a table exists in the database
+    tableExists(tableName) {
+      const query = `SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}'`;
+      const result = this.exec(query);
+      return result.length > 0;
     }
-}
+
+    // Get all the rows from a table
+    getAllRows(table) {
+      return this.select(table);
+    }
+  }
+
 
 export default Database
