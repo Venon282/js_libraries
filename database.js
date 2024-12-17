@@ -22,6 +22,7 @@ class Database {
       }
 
       const statement = this.db.prepare(query);
+      
 
       // Bind parameters if provided
       if (params.length > 0) {
@@ -30,13 +31,14 @@ class Database {
 
       let result = statement.step();
       const rows = [];
-
+      
       // Collect the result
       while (result) {
         rows.push(statement.getAsObject());
+        console.log('statement.getAsObject()',statement.getAsObject())
         result = statement.step();
       }
-
+      
       statement.free();
       return rows;
     }
