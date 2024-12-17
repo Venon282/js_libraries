@@ -1,4 +1,4 @@
-import * as _ from "/classes/lodash.min.js"
+import * as _ from "./lodash.min.js"
 
 class List {
     /**

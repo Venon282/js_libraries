@@ -1,5 +1,5 @@
-import List from "/classes/list.js"
-import * as _ from "/classes/lodash.min.js"
+import List from "./list.js"
+import * as _ from "./lodash.min.js"
 
 class Dict{
     /**
