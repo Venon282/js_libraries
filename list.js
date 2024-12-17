@@ -432,6 +432,7 @@ class List extends Array{
 
             return a[indexs[indexs.length-1]] - b[indexs[indexs.length-1]] 
         })
+        return list
     }
 
 }
